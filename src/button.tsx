@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 interface Props {
-    onSubmit: () => void;
+  onSubmit: () => void;
 }
 
 export default class Button extends React.Component<Props, {}> {
