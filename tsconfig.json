@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "es6",
+    "target": "es5",
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "jsx": "react",
+    "baseUrl": "."
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
