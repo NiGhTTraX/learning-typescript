@@ -1,7 +1,7 @@
-import 'tests/jsdom-setup';
 import * as ReactDOM from 'react-dom';
+import { ReactElement } from 'react';
 import * as $ from 'jquery';
-import {ReactElement} from 'react';
+import 'tests/jsdom-setup';
 
 const _container = document.createElement('div');
 
@@ -12,6 +12,7 @@ const _container = document.createElement('div');
  *
  * @returns {jQuery} The component's root DOM node wrapped in jQuery.
  */
+// eslint-disable-next-line no-undef
 export function $render(element: ReactElement<any>): JQuery {
   ReactDOM.render(element, _container);
 

@@ -5,7 +5,7 @@ interface Props {
 }
 
 export default class Button extends React.Component<Props, {}> {
-    render() {
-        return <button onClick={this.props.onSubmit}>Submit</button>;
-    }
+  render() {
+    return <button onClick={this.props.onSubmit}>Submit</button>;
+  }
 }

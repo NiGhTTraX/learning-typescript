@@ -5,10 +5,10 @@ import { JSDOM } from 'jsdom';
 global.window = new JSDOM('').window;
 global.document = global.window.document;
 global.navigator = {
-    userAgent: 'node.js'
+  userAgent: 'node.js'
 };
-global.requestAnimationFrame = function(callback) {
-    setTimeout(callback, 0);
+global.requestAnimationFrame = function (callback) {
+  setTimeout(callback, 0);
 };
 
 // SinonJS needs this.
