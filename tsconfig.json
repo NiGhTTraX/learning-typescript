@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "es6",
+    "module": "commonjs",
     "target": "es5",
     "sourceMap": true,
     "noImplicitAny": true,
@@ -9,6 +9,9 @@
     "jsx": "react",
     "baseUrl": "."
   },
+  "include": [
+    "**/*.{ts,tsx}"
+  ],
   "exclude": [
     "node_modules"
   ]
