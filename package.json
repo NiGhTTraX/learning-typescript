@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Learning TypeScript by implementing a small project",
   "scripts": {
-    "lint": "eslint --ext ts --ext tsx ."
+    "lint": "eslint --ext ts --ext tsx .",
+    "test": "mocha --opts tests/mocha.opts 'tests/**/*.spec.{ts,tsx}'"
   },
   "author": "Andrei Picus",
   "license": "MIT",
