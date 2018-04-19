@@ -26,9 +26,9 @@
     "ts-node": "~6.0.0"
   },
   "devDependencies": {
-    "@babel/core": "~7.0.0-beta.39",
-    "@babel/preset-env": "~7.0.0-beta.39",
-    "@babel/preset-typescript": "~7.0.0-beta.39",
+    "@babel/core": "~7.0.0-beta.44",
+    "@babel/preset-env": "~7.0.0-beta.44",
+    "@babel/preset-typescript": "~7.0.0-beta.44",
     "@types/node": "~9.6.5",
     "@types/sinon": "~4.3.1",
     "babel-eslint": "~8.2.1",
