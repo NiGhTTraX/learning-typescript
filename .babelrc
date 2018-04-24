@@ -1,7 +1,6 @@
 {
   "presets": [
-    ["@babel/env", { "target": { "node": "current" } }],
-    "@babel/preset-typescript"
+    ["@babel/env", { "target": { "node": "current" } }]
   ],
   "plugins": [
     ["module-resolver", {

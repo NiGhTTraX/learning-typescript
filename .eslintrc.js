@@ -1,15 +1,18 @@
 module.exports = {
   'root': true,
 
-  'parser': 'babel-eslint',
+  'parser': 'typescript-eslint-parser',
+
+  'plugins': [
+    'typescript'
+  ],
 
   'env': {
     'browser': true
   },
 
   'extends': [
-    'airbnb',
-    'plugin:import/errors'
+    'airbnb'
   ],
 
   'settings': {
@@ -24,8 +27,10 @@ module.exports = {
   },
 
   'rules': {
-    // This should be enabled only for src/.
-    'import/no-extraneous-dependencies': 0,
+    // ESLint doesn't understand interfaces yet and marks them as undefined.
+    'no-undef': 0,
+
+    'typescript/no-unused-vars': 2,
 
     // Overwrite the airbnb one to force CallExpression arguments to be indented
     // like the first one.
@@ -102,4 +107,4 @@ module.exports = {
     // behaviour.
     'jsx-a11y/no-autofocus': 0
   }
-}
+};
