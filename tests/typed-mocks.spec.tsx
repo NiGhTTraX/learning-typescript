@@ -144,7 +144,9 @@ function createReactStub<Props>(): ReactStub<Props> {
     mock.verifyAll();
   };
 
-  return Object.assign(Stub, { withProps, verifyAll });
+  const staticProperties: ReactMock<Props> = { withProps, verifyAll };
+
+  return Object.assign(Stub, staticProperties);
 }
 
 function partialPropMatcher<Props>(expected: Partial<Props>): Props {
