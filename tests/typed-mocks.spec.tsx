@@ -1,4 +1,5 @@
 import { IMock, It, Mock } from 'typemoq';
+import { expect } from 'chai';
 
 describe('Learning typed mocks', function () {
   it('should support mocking typed functions', () => {
@@ -40,5 +41,27 @@ describe('Learning typed mocks', function () {
     fakeFoo.doBar(2, 'bar');
 
     mock.verifyAll();
+  });
+
+  it('should support mocking promises', function () {
+    interface IFoo {
+      doFoo: () => Promise<string>;
+    }
+
+    const mock: IMock<IFoo> = Mock.ofType<IFoo>();
+
+    mock.setup((fakeFoo: IFoo) => fakeFoo.doFoo())
+      .returns(() => Promise.resolve('foo'))
+      .verifiable();
+
+    const fakeFoo: IFoo = mock.object;
+
+    const promise = fakeFoo.doFoo();
+
+    return promise.then(x => {
+      expect(x).to.equal('foo');
+
+      mock.verifyAll();
+    });
   });
 });
