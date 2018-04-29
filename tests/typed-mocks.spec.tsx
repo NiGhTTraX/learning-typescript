@@ -1,5 +1,7 @@
 import { IMock, It, Mock } from 'typemoq';
 import { expect } from 'chai';
+import * as React from 'react';
+import { $render } from './render-helper';
 
 describe('Learning typed mocks', function () {
   it('should support mocking typed functions', () => {
@@ -64,4 +66,50 @@ describe('Learning typed mocks', function () {
       mock.verifyAll();
     });
   });
+
+  it('should support mocking React render props', function () {
+    interface BarProps {
+      foo: number;
+      bar: string;
+    }
+
+    interface FooProps {
+      Bar: React.ComponentType<BarProps>;
+    }
+
+    class Foo extends React.Component<FooProps> {
+      render() {
+        const { Bar: InjectedBar } = this.props;
+
+        return <div>
+          This is Bar: <InjectedBar foo={2} bar="aaa" />
+        </div>;
+      }
+    }
+
+    const [FakeBar, mock] = createStub<BarProps>();
+
+    mock.setup(render => render(It.isObjectWith({ foo: 2, bar: 'aaa' })))
+      .returns(() => <span>::fake bar::</span>)
+      .verifiable();
+
+    const $component = $render(<Foo Bar={FakeBar} />);
+
+    mock.verifyAll();
+    expect($component.text()).to.contain('::fake bar::');
+  });
 });
+
+
+function createStub<Props>(): [React.ComponentType<Props>, IMock<React.StatelessComponent<Props>>] {
+  const mock: IMock<React.StatelessComponent<Props>> =
+    Mock.ofType<React.StatelessComponent<Props>>();
+
+  const render = mock.object;
+
+  function Stub(props: Props) {
+    return render(props);
+  }
+
+  return [Stub, mock];
+}

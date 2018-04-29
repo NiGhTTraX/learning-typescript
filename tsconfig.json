@@ -6,7 +6,7 @@
     "sourceMap": true,
     "noImplicitAny": true,
     "noUnusedParameters": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "jsx": "react",
     "baseUrl": "."
   },
