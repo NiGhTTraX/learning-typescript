@@ -22,4 +22,23 @@ describe('Learning typed mocks', function () {
 
     mock.verifyAll();
   });
+
+  it('should support mocking interfaces', () => {
+    interface IFoo {
+      doFoo: () => void;
+      doBar: (a: number, b: string) => boolean;
+    }
+
+    const mock: IMock<IFoo> = Mock.ofType<IFoo>();
+
+    mock.setup((fakeFoo: IFoo) => fakeFoo.doFoo()).verifiable();
+    mock.setup((fakeFoo: IFoo) => fakeFoo.doBar(2, 'bar')).returns(() => false).verifiable();
+
+    const fakeFoo: IFoo = mock.object;
+
+    fakeFoo.doFoo();
+    fakeFoo.doBar(2, 'bar');
+
+    mock.verifyAll();
+  });
 });
