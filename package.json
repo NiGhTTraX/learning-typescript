@@ -8,6 +8,10 @@
   },
   "author": "Andrei Picus",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NiGhTTraX/learning-typescript.git"
+  },
   "dependencies": {
     "@types/chai": "~4.1.2",
     "@types/jquery": "~3.3.0",

@@ -1,4 +1,4 @@
-import { IMock, Mock } from 'typemoq';
+import { IMock, It, Mock } from 'typemoq';
 
 describe('Learning typed mocks', function () {
   it('should support mocking typed functions', () => {
@@ -11,10 +11,10 @@ describe('Learning typed mocks', function () {
 
     const mock: IMock<DoTheThing> = Mock.ofType<DoTheThing>();
 
-    mock.setup((fakeDoTheThing: DoTheThing) => fakeDoTheThing({
+    mock.setup((fakeDoTheThing: DoTheThing) => fakeDoTheThing(It.isValue({
       foo: 2,
       bar: 'bar'
-    })).returns(({ foo, bar }) => foo + bar).verifiable();
+    }))).returns(({ foo, bar }) => foo + bar).verifiable();
 
     const fakeDoTheThing: DoTheThing = mock.object;
 
