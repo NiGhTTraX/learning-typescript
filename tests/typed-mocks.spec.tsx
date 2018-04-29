@@ -1,6 +1,7 @@
 import { IMock, It, Mock } from 'typemoq';
 import { expect } from 'chai';
 import * as React from 'react';
+import { assert } from 'sinon';
 import { $render } from './render-helper';
 
 describe('Learning typed mocks', function () {
@@ -71,6 +72,7 @@ describe('Learning typed mocks', function () {
     interface BarProps {
       foo: number;
       bar: string;
+      onClick: () => void;
     }
 
     interface FooProps {
@@ -82,14 +84,14 @@ describe('Learning typed mocks', function () {
         const { Bar: InjectedBar } = this.props;
 
         return <div>
-          This is Bar: <InjectedBar foo={2} bar="aaa" />
+          This is Bar: <InjectedBar foo={2} bar="aaa" onClick={() => {}} />
         </div>;
       }
     }
 
     const [FakeBar, mock] = createStub<BarProps>();
 
-    mock.setup(render => render(It.isObjectWith({ foo: 2, bar: 'aaa' })))
+    mock.setup(render => render(withProps<BarProps>({ foo: 2, bar: 'aaa' })))
       .returns(() => <span>::fake bar::</span>)
       .verifiable();
 
@@ -99,7 +101,6 @@ describe('Learning typed mocks', function () {
     expect($component.text()).to.contain('::fake bar::');
   });
 });
-
 
 function createStub<Props>(): [React.ComponentType<Props>, IMock<React.StatelessComponent<Props>>] {
   const mock: IMock<React.StatelessComponent<Props>> =
@@ -112,4 +113,19 @@ function createStub<Props>(): [React.ComponentType<Props>, IMock<React.Stateless
   }
 
   return [Stub, mock];
+}
+
+
+/**
+ * Create a partial prop matcher.
+ */
+function withProps<Props>(expected: Partial<Props>): Props {
+  return It.is<Props>((props: Props) => {
+    try {
+      assert.match(props, expected);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  });
 }
