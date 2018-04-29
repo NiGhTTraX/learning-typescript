@@ -6,10 +6,6 @@ import { assert } from 'sinon';
 import { IReturnsResult } from 'typemoq/Api/IReturns';
 import { $render } from './render-helper';
 
-// Replace this with ReactNode after https://github.com/DefinitelyTyped/DefinitelyTyped/issues/20544 is done.
-type JSX = React.ReactElement<any> | null;
-
-
 describe('Learning typed mocks', function () {
   it('should support mocking typed functions', () => {
     interface SomeArguments {
@@ -108,6 +104,9 @@ describe('Learning typed mocks', function () {
   });
 });
 
+// Replace this with ReactNode after https://github.com/DefinitelyTyped/DefinitelyTyped/issues/20544 is done.
+type JSX = React.ReactElement<any> | null;
+
 interface ReactMockExpectation<Props> {
   renders: (jsx: JSX) => IReturnsResult<Props>;
 }
@@ -117,11 +116,11 @@ interface ReactMock<Props> {
   verifyAll: () => void;
 }
 
-// eslint-disable-next-line no-unused-vars,space-infix-ops
-type XXX<Props> = React.StatelessComponent<Props> & ReactMock<Props>;
+// eslint-disable-next-line space-infix-ops
+type ReactStub<Props> = React.StatelessComponent<Props> & ReactMock<Props>;
 
 // eslint-disable-next-line max-len
-function createReactStub<Props>(): XXX<Props> {
+function createReactStub<Props>(): ReactStub<Props> {
   const mock: IMock<React.StatelessComponent<Props>> =
     Mock.ofType<React.StatelessComponent<Props>>();
 
@@ -147,7 +146,6 @@ function createReactStub<Props>(): XXX<Props> {
 
   return Object.assign(Stub, { withProps, verifyAll });
 }
-
 
 function partialPropMatcher<Props>(expected: Partial<Props>): Props {
   return It.is<Props>((props: Props) => {
