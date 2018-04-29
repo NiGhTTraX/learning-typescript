@@ -95,15 +95,15 @@ describe('Learning typed mocks', function () {
       }
     }
 
-    const [FakeBar, mock] = createReactStub<BarProps>();
+    const FakeBar = createReactStub<BarProps>();
 
-    mock.withProps({ foo: 2 })
+    FakeBar.withProps({ foo: 2 })
       .renders(<span>::fake bar::</span>)
       .verifiable();
 
     const $component = $render(<Foo Bar={FakeBar} />);
 
-    mock.verifyAll();
+    FakeBar.verifyAll();
     expect($component.text()).to.contain('::fake bar::');
   });
 });
@@ -113,14 +113,15 @@ interface ReactMockExpectation<Props> {
 }
 
 interface ReactMock<Props> {
-  withProps: (expected: Partial<Props>) => ReactMockExpectation<Props>
+  withProps: (expected: Partial<Props>) => ReactMockExpectation<Props>;
+  verifyAll: () => void;
 }
 
 // eslint-disable-next-line no-unused-vars,space-infix-ops
-type IReactMock<Props> = IMock<React.StatelessComponent<Props>> & ReactMock<Props>;
+type XXX<Props> = React.StatelessComponent<Props> & ReactMock<Props>;
 
 // eslint-disable-next-line max-len
-function createReactStub<Props>(): [React.ComponentType<Props>, IReactMock<Props>] {
+function createReactStub<Props>(): XXX<Props> {
   const mock: IMock<React.StatelessComponent<Props>> =
     Mock.ofType<React.StatelessComponent<Props>>();
 
@@ -140,9 +141,11 @@ function createReactStub<Props>(): [React.ComponentType<Props>, IReactMock<Props
     });
   };
 
-  const enhancedMock = Object.assign(mock, { withProps });
+  const verifyAll = () => {
+    mock.verifyAll();
+  };
 
-  return [Stub, enhancedMock];
+  return Object.assign(Stub, { withProps, verifyAll });
 }
 
 
