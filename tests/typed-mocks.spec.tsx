@@ -2,7 +2,13 @@ import { IMock, It, Mock } from 'typemoq';
 import { expect } from 'chai';
 import * as React from 'react';
 import { assert } from 'sinon';
+// eslint-disable-next-line import/no-unresolved
+import { IReturnsResult } from 'typemoq/Api/IReturns';
 import { $render } from './render-helper';
+
+// Replace this with ReactNode after https://github.com/DefinitelyTyped/DefinitelyTyped/issues/20544 is done.
+type JSX = React.ReactElement<any> | null;
+
 
 describe('Learning typed mocks', function () {
   it('should support mocking typed functions', () => {
@@ -91,8 +97,8 @@ describe('Learning typed mocks', function () {
 
     const [FakeBar, mock] = createReactStub<BarProps>();
 
-    mock.setup(render => render(withProps<BarProps>({ foo: 2, bar: 'aaa' })))
-      .returns(() => <span>::fake bar::</span>)
+    mock.withProps({ foo: 2 })
+      .renders(<span>::fake bar::</span>)
       .verifiable();
 
     const $component = $render(<Foo Bar={FakeBar} />);
@@ -102,9 +108,19 @@ describe('Learning typed mocks', function () {
   });
 });
 
+interface ReactMockExpectation<Props> {
+  renders: (jsx: JSX) => IReturnsResult<Props>;
+}
+
+interface ReactMock<Props> {
+  withProps: (expected: Partial<Props>) => ReactMockExpectation<Props>
+}
+
+// eslint-disable-next-line no-unused-vars,space-infix-ops
+type IReactMock<Props> = IMock<React.StatelessComponent<Props>> & ReactMock<Props>;
 
 // eslint-disable-next-line max-len
-function createReactStub<Props>(): [React.ComponentType<Props>, IMock<React.StatelessComponent<Props>>] {
+function createReactStub<Props>(): [React.ComponentType<Props>, IReactMock<Props>] {
   const mock: IMock<React.StatelessComponent<Props>> =
     Mock.ofType<React.StatelessComponent<Props>>();
 
@@ -114,16 +130,26 @@ function createReactStub<Props>(): [React.ComponentType<Props>, IMock<React.Stat
     return render(props);
   }
 
-  return [Stub, mock];
+  const withProps = (expected: Partial<Props>) => {
+    const expectation = mock.setup(
+      fakeRender => fakeRender(partialPropMatcher<Props>(expected))
+    );
+
+    return Object.assign(expectation, {
+      renders: (jsx: JSX) => expectation.returns(() => jsx)
+    });
+  };
+
+  const enhancedMock = Object.assign(mock, { withProps });
+
+  return [Stub, enhancedMock];
 }
 
 
-/**
- * Create a partial prop matcher.
- */
-function withProps<Props>(expected: Partial<Props>): Props {
+function partialPropMatcher<Props>(expected: Partial<Props>): Props {
   return It.is<Props>((props: Props) => {
     try {
+      // This can of course be replaced by _.isMatch.
       assert.match(props, expected);
       return true;
     } catch (e) {
