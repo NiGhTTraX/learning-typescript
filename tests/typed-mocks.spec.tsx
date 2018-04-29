@@ -89,7 +89,7 @@ describe('Learning typed mocks', function () {
       }
     }
 
-    const [FakeBar, mock] = createStub<BarProps>();
+    const [FakeBar, mock] = createReactStub<BarProps>();
 
     mock.setup(render => render(withProps<BarProps>({ foo: 2, bar: 'aaa' })))
       .returns(() => <span>::fake bar::</span>)
@@ -102,7 +102,9 @@ describe('Learning typed mocks', function () {
   });
 });
 
-function createStub<Props>(): [React.ComponentType<Props>, IMock<React.StatelessComponent<Props>>] {
+
+// eslint-disable-next-line max-len
+function createReactStub<Props>(): [React.ComponentType<Props>, IMock<React.StatelessComponent<Props>>] {
   const mock: IMock<React.StatelessComponent<Props>> =
     Mock.ofType<React.StatelessComponent<Props>>();
 
