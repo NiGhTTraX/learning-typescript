@@ -1,7 +1,7 @@
 import { IMock, It, Mock } from 'typemoq';
 import { expect } from 'chai';
 import * as React from 'react';
-import { assert } from 'sinon';
+import { assert, spy } from 'sinon';
 // eslint-disable-next-line import/no-unresolved
 import { IReturnsResult } from 'typemoq/Api/IReturns';
 import { $render } from './render-helper';
@@ -159,6 +159,33 @@ describe('Learning typed mocks', function () {
 
       FakeBar.verifyAll();
       expect($component.text()).to.contain('::fake bar::');
+    });
+
+    it('should support creating React spies', function () {
+      interface ReactSpy<Props> {
+        renderedWith: (props: Partial<Props>) => boolean;
+      }
+
+      function createReactSpy<Props>(): React.StatelessComponent<Props> & ReactSpy<Props> {
+        const renderSpy = spy();
+
+        function Spy(props: Props) {
+          renderSpy(props);
+
+          return <span>foobar</span>;
+        }
+
+        return Object.assign(Spy, {
+          renderedWith: (props: Partial<Props>): boolean => renderSpy.calledWithMatch(props)
+        });
+      }
+
+      const FakeBar = createReactSpy<BarProps>();
+
+      const $component = $render(<Foo Bar={FakeBar} />);
+
+      expect($component.text()).to.include('foobar');
+      expect(FakeBar.renderedWith({ foo: 2 })).to.be.true;
     });
   });
 });
