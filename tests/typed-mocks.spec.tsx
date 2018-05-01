@@ -6,6 +6,9 @@ import { assert } from 'sinon';
 import { IReturnsResult } from 'typemoq/Api/IReturns';
 import { $render } from './render-helper';
 
+// Replace this with ReactNode after https://github.com/DefinitelyTyped/DefinitelyTyped/issues/20544 is done.
+type JSX = React.ReactElement<any> | null;
+
 describe('Learning typed mocks', function () {
   it('should support mocking typed functions', () => {
     interface SomeArguments {
@@ -70,7 +73,7 @@ describe('Learning typed mocks', function () {
     });
   });
 
-  it('should support mocking React render props', function () {
+  describe('with React', () => {
     interface BarProps {
       foo: number;
       bar: string;
@@ -91,72 +94,71 @@ describe('Learning typed mocks', function () {
       }
     }
 
-    const FakeBar = createReactStub<BarProps>();
+    it('should support creating React mocks', function () {
+      interface ReactMockExpectation<Props> {
+        renders: (jsx: JSX) => IReturnsResult<Props>;
+      }
 
-    FakeBar.withProps({ foo: 2 })
-      .renders(<span>::fake bar::</span>)
-      .verifiable();
+      interface ReactMock<Props> {
+        withProps: (expected: Partial<Props>) => ReactMockExpectation<Props>;
+        verifyAll: () => void;
+      }
 
-    const $component = $render(<Foo Bar={FakeBar} />);
+      // eslint-disable-next-line space-infix-ops
+      type ReactStub<Props> = React.StatelessComponent<Props> & ReactMock<Props>;
 
-    FakeBar.verifyAll();
-    expect($component.text()).to.contain('::fake bar::');
+      // eslint-disable-next-line max-len
+      function createReactStub<Props>(): ReactStub<Props> {
+        const mock: IMock<React.StatelessComponent<Props>> =
+          Mock.ofType<React.StatelessComponent<Props>>();
+
+        const render = mock.object;
+
+        function Stub(props: Props) {
+          return render(props);
+        }
+
+        const withProps = (expected: Partial<Props>) => {
+          const expectation = mock.setup(
+            fakeRender => fakeRender(partialPropMatcher<Props>(expected))
+          );
+
+          return Object.assign(expectation, {
+            renders: (jsx: JSX) => expectation.returns(() => jsx)
+          });
+        };
+
+        const verifyAll = () => {
+          mock.verifyAll();
+        };
+
+        const staticProperties: ReactMock<Props> = { withProps, verifyAll };
+
+        return Object.assign(Stub, staticProperties);
+      }
+
+      function partialPropMatcher<Props>(expected: Partial<Props>): Props {
+        return It.is<Props>((props: Props) => {
+          try {
+            // This can of course be replaced by _.isMatch.
+            assert.match(props, expected);
+            return true;
+          } catch (e) {
+            return false;
+          }
+        });
+      }
+
+      const FakeBar = createReactStub<BarProps>();
+
+      FakeBar.withProps({ foo: 2 })
+        .renders(<span>::fake bar::</span>)
+        .verifiable();
+
+      const $component = $render(<Foo Bar={FakeBar} />);
+
+      FakeBar.verifyAll();
+      expect($component.text()).to.contain('::fake bar::');
+    });
   });
 });
-
-// Replace this with ReactNode after https://github.com/DefinitelyTyped/DefinitelyTyped/issues/20544 is done.
-type JSX = React.ReactElement<any> | null;
-
-interface ReactMockExpectation<Props> {
-  renders: (jsx: JSX) => IReturnsResult<Props>;
-}
-
-interface ReactMock<Props> {
-  withProps: (expected: Partial<Props>) => ReactMockExpectation<Props>;
-  verifyAll: () => void;
-}
-
-// eslint-disable-next-line space-infix-ops
-type ReactStub<Props> = React.StatelessComponent<Props> & ReactMock<Props>;
-
-// eslint-disable-next-line max-len
-function createReactStub<Props>(): ReactStub<Props> {
-  const mock: IMock<React.StatelessComponent<Props>> =
-    Mock.ofType<React.StatelessComponent<Props>>();
-
-  const render = mock.object;
-
-  function Stub(props: Props) {
-    return render(props);
-  }
-
-  const withProps = (expected: Partial<Props>) => {
-    const expectation = mock.setup(
-      fakeRender => fakeRender(partialPropMatcher<Props>(expected))
-    );
-
-    return Object.assign(expectation, {
-      renders: (jsx: JSX) => expectation.returns(() => jsx)
-    });
-  };
-
-  const verifyAll = () => {
-    mock.verifyAll();
-  };
-
-  const staticProperties: ReactMock<Props> = { withProps, verifyAll };
-
-  return Object.assign(Stub, staticProperties);
-}
-
-function partialPropMatcher<Props>(expected: Partial<Props>): Props {
-  return It.is<Props>((props: Props) => {
-    try {
-      // This can of course be replaced by _.isMatch.
-      assert.match(props, expected);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  });
-}
